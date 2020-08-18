@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sql>
+  <select id="listPage">
+    <![CDATA[
+   SELECT top 10  sMaterialNo  , sMaterialName, sMaterialNameEN , sMaterialCategory  , sMaterialStatus, sUnit , sABCCode  , nMaxStock   , nSafetyStock  , nStockBatch , nPurchaseBatch  , nPurchasePointQty     , nProductBatch   , nProductCycle      , sPurchaseOrProcess          , nStdPrice        , nLastPrice, sHSCode        , tCreateTime             , sCreator FROM dbo.mmMaterial(nolock) where sMaterialCategory = 'fabric' {0}
+    ]]>
+  </select>
+  <select id="pbProvider">
+    <![CDATA[
+     SELECT uGUID,sProviderFullName,sProviderName FROM HSFabricTrade_HZFE.dbo.pbProvider WITH(NOLOCK) WHERE bUsable=1  AND sProvidertype LIKE '%供应%'
+    ]]>
+  </select>
+  <select id="capacityList">
+
+    <![CDATA[
+   SELECT pb_follow_man,(CASE WHEN ISNULL(NINACQTY,0)=0 THEN NULL ELSE  CAST(round(ISNULL(NINACQTY,0),1,1) as  REAL) END) AS ninacqty,* 
+   FROM order_plan_pb_batch a (NOLOCK) LEFT  JOIN dbo.v_order_pb_plan_material_list b (NOLOCK) ON (b.order_no=a.plan_order_no AND b.sample_material_no=a.plan_material_no
+    AND b.sProviderName=a.provider ) LEFT JOIN order_plan_control c ON a.plan_order_no=c.order_no 
+    WHERE  (c.pb_follow_man IS NOT NULL and c.pb_follow_man <> '') AND {0}
+   ]]>
+  </select>
+</sql>
